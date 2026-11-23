@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>La Biblia en Audio — Reina-Valera 1960</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Lora:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg-body: #faf8f5;
+      --bg-surface: #ffffff;
+      --bg-elevated: #f3efe8;
+      --text-primary: #1f1d1a;
+      --text-secondary: #635d54;
+      --text-muted: #968f84;
+      --accent: #8b5a2b;
+      --accent-hover: #70461e;
+      --accent-soft: rgba(139, 90, 43, 0.14);
+      --border: #e6dfd5;
+      --shadow: 0 8px 30px rgba(31, 29, 26, 0.1);
+      --verse-size: 1.18rem;
+    }
+
+    body.dark {
+      --bg-body: #141312;
+      --bg-surface: #1e1c1a;
+      --bg-elevated: #282522;
+      --text-primary: #ece7df;
+      --text-secondary: #a89f93;
+      --text-muted: #756e64;
+      --accent: #d49b63;
+      --accent-hover: #e3ae78;
+      --accent-soft: rgba(212, 155, 99, 0.18);
+      --border: #2f2b27;
+      --shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--bg-body);
+      color: var(--text-primary);
+      line-height: 1.6;
+      transition: background-color 0.25s ease, color 0.25s ease;
+      padding-bottom: 175px;
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background-color: var(--bg-surface);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .header-inner {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 10px 14px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-family: 'Lora', serif;
+      font-weight: 600;
+      font-size: 1.1rem;
+      color: var(--accent);
+    }
+
+    .selectors {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex: 1;
+      min-width: 220px;
+      max-width: 440px;
+    }
+
+    select {
+      appearance: none;
+      background-color: var(--bg-elevated);
+      color: var(--text-primary);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 8px 28px 8px 10px;
+      font-family: inherit;
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      outline: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%238b5a2b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 8px center;
+    }
+
+    #bookSelect { flex: 2; }
+    #chapterSelect { flex: 1; min-width: 88px; }
+
+    .tools {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .icon-btn {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      color: var(--text-primary);
+      border-radius: 9px;
+      padding: 7px 10px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    main {
+      max-width: 760px;
+      margin: 24px auto;
+      padding: 0 18px;
+    }
+
+    .chapter-header {
+      text-align: center;
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .testament-tag {
+      display: inline-block;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--accent);
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .chapter-title {
+      font-family: 'Lora', serif;
+      font-size: 1.85rem;
+      font-weight: 600;
+    }
+
+    .version-badge {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    .verses-container {
+      font-family: 'Lora', Georgia, serif;
+      font-size: var(--verse-size);
+      line-height: 1.85;
+    }
+
+    .verse {
+      padding: 9px 12px;
+      margin: 2px -12px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+
+    .verse.active {
+      background-color: var(--accent-soft);
+      box-shadow: inset 3px 0 0 var(--accent);
+    }
+
+    .verse-num {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.75em;
+      font-weight: 600;
+      color: var(--accent);
+      vertical-align: super;
+      margin-right: 6px;
+    }
+
+    .chapter-nav-bottom {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 32px;
+      padding-top: 18px;
+      border-top: 1px solid var(--border);
+      gap: 10px;
+    }
+
+    .nav-btn {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      color: var(--text-primary);
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-size: 0.88rem;
+      font-weight: 500;
+      cursor: pointer;
+      flex: 1;
+    }
+
+    .nav-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .status-box {
+      text-align: center;
+      padding: 44px 16px;
+      color: var(--text-secondary);
+    }
+
+    .spinner {
+      width: 28px;
+      height: 28px;
+      border: 3px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 12px;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .player-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: var(--bg-surface);
+      border-top: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      z-index: 50;
+      padding: 10px 14px;
+    }
+
+    .player-inner {
+      max-width: 960px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .now-playing {
+      display: flex;
+      flex-direction: column;
+      min-width: 140px;
+    }
+
+    .np-title {
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    .np-sub {
+      font-size: 0.76rem;
+      color: var(--text-secondary);
+    }
+
+    .transport {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .play-btn {
+      background: var(--accent);
+      color: #ffffff;
+      border: none;
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(139, 90, 43, 0.35);
+    }
+
+    .player-options {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .auto-toggle {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+      background: var(--bg-elevated);
+      padding: 6px 8px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+
+    #voiceSelect, #pitchSelect, #speedSelect {
+      padding: 6px 22px 6px 8px;
+      font-size: 0.78rem;
+      border-radius: 8px;
+    }
+
+    @media (max-width: 720px) {
+      .player-inner { justify-content: center; }
+      .now-playing { text-align: center; width: 100%; }
+      body { padding-bottom: 195px; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="header-inner">
+      <div class="brand">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+          <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+        </svg>
+        <span>Biblia Audio</span>
+      </div>
+
+      <div class="selectors">
+        <select id="bookSelect" aria-label="Seleccionar libro"></select>
+        <select id="chapterSelect" aria-label="Seleccionar capítulo"></select>
+      </div>
+
+      <div class="tools">
+        <button class="icon-btn" id="fontDecBtn">A-</button>
+        <button class="icon-btn" id="fontIncBtn">A+</button>
+        <button class="icon-btn" id="themeBtn">🌓</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="chapter-header">
+      <div class="testament-tag" id="testamentTag">Antiguo Testamento</div>
+      <h1 class="chapter-title" id="chapterTitle">Génesis 1</h1>
+      <div class="version-badge" id="versionBadge">Reina-Valera 1960</div>
+    </div>
+
+    <div id="contentArea">
+      <div class="status-box">
+        <div class="spinner"></div>
+        Cargando Escrituras...
+      </div>
+    </div>
+
+    <div class="chapter-nav-bottom">
+      <button class="nav-btn" id="prevChapterBtn">← Anterior</button>
+      <button class="nav-btn" id="nextChapterBtn">Siguiente →</button>
+    </div>
+  </main>
+
+  <div class="player-bar">
+    <div class="player-inner">
+      <div class="now-playing">
+        <span class="np-title" id="npTitle">Génesis 1</span>
+        <span class="np-sub" id="npStatus">Voz masculina lista</span>
+      </div>
+
+      <div class="transport">
+        <button class="icon-btn" id="prevVerseBtn" title="Versículo anterior">⏮</button>
+        <button class="play-btn" id="playPauseBtn" title="Reproducir / Pausar">
+          <svg id="playIcon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <polygon points="6 4 20 12 6 20 6 4"></polygon>
+          </svg>
+        </button>
+        <button class="icon-btn" id="nextVerseBtn" title="Siguiente versículo">⏭</button>
+        <button class="icon-btn" id="stopBtn" title="Detener">⏹</button>
+      </div>
+
+      <div class="player-options">
+        <label class="auto-toggle">
+          <input type="checkbox" id="autoNextCheck" checked />
+          <span>Auto-sig.</span>
+        </label>
+
+        <select id="voiceSelect" title="Narrador masculino">
+          <option value="es-ES-AlvaroNeural" selected>🎙️ Álvaro (Solemne)</option>
+          <option value="es-AR-TomasNeural">🎙️ Tomás (Profundo)</option>
+          <option value="es-MX-JorgeNeural">🎙️ Jorge (Firme)</option>
+          <option value="es-US-AlonsoNeural">🎙️ Alonso (Cálido)</option>
+        </select>
+
+        <select id="pitchSelect" title="Profundidad de voz">
+          <option value="-18Hz">Muy Grave</option>
+          <option value="-12Hz" selected>Solemne (Grave)</option>
+          <option value="-6Hz">Profundo</option>
+          <option value="+0Hz">Natural</option>
+        </select>
+
+        <select id="speedSelect" title="Velocidad">
+          <option value="-20%">0.80x</option>
+          <option value="-10%" selected>0.90x (Pausado)</option>
+          <option value="+0%">1.0x</option>
+          <option value="+15%">1.15x</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = "";
+
+    const BOOKS = [
+      { id: 1, name: "Génesis", chapters: 50, t: "Antiguo Testamento" },
+      { id: 2, name: "Éxodo", chapters: 40, t: "Antiguo Testamento" },
+      { id: 3, name: "Levítico", chapters: 27, t: "Antiguo Testamento" },
+      { id: 4, name: "Números", chapters: 36, t: "Antiguo Testamento" },
+      { id: 5, name: "Deuteronomio", chapters: 34, t: "Antiguo Testamento" },
+      { id: 6, name: "Josué", chapters: 24, t: "Antiguo Testamento" },
+      { id: 7, name: "Jueces", chapters: 21, t: "Antiguo Testamento" },
+      { id: 8, name: "Rut", chapters: 4, t: "Antiguo Testamento" },
+      { id: 9, name: "1 Samuel", chapters: 31, t: "Antiguo Testamento" },
+      { id: 10, name: "2 Samuel", chapters: 24, t: "Antiguo Testamento" },
+      { id: 11, name: "1 Reyes", chapters: 22, t: "Antiguo Testamento" },
+      { id: 12, name: "2 Reyes", chapters: 25, t: "Antiguo Testamento" },
+      { id: 13, name: "1 Crónicas", chapters: 29, t: "Antiguo Testamento" },
+      { id: 14, name: "2 Crónicas", chapters: 36, t: "Antiguo Testamento" },
+      { id: 15, name: "Esdras", chapters: 10, t: "Antiguo Testamento" },
+      { id: 16, name: "Nehemías", chapters: 13, t: "Antiguo Testamento" },
+      { id: 17, name: "Ester", chapters: 10, t: "Antiguo Testamento" },
+      { id: 18, name: "Job", chapters: 42, t: "Antiguo Testamento" },
+      { id: 19, name: "Salmos", chapters: 150, t: "Antiguo Testamento" },
+      { id: 20, name: "Proverbios", chapters: 31, t: "Antiguo Testamento" },
+      { id: 21, name: "Eclesiastés", chapters: 12, t: "Antiguo Testamento" },
+      { id: 22, name: "Cantares", chapters: 8, t: "Antiguo Testamento" },
+      { id: 23, name: "Isaías", chapters: 66, t: "Antiguo Testamento" },
+      { id: 24, name: "Jeremías", chapters: 52, t: "Antiguo Testamento" },
+      { id: 25, name: "Lamentaciones", chapters: 5, t: "Antiguo Testamento" },
+      { id: 26, name: "Ezequiel", chapters: 48, t: "Antiguo Testamento" },
+      { id: 27, name: "Daniel", chapters: 12, t: "Antiguo Testamento" },
+      { id: 28, name: "Oseas", chapters: 14, t: "Antiguo Testamento" },
+      { id: 29, name: "Joel", chapters: 3, t: "Antiguo Testamento" },
+      { id: 30, name: "Amós", chapters: 9, t: "Antiguo Testamento" },
+      { id: 31, name: "Abdías", chapters: 1, t: "Antiguo Testamento" },
+      { id: 32, name: "Jonás", chapters: 4, t: "Antiguo Testamento" },
+      { id: 33, name: "Miqueas", chapters: 7, t: "Antiguo Testamento" },
+      { id: 34, name: "Nahúm", chapters: 3, t: "Antiguo Testamento" },
+      { id: 35, name: "Habacuc", chapters: 3, t: "Antiguo Testamento" },
+      { id: 36, name: "Sofonías", chapters: 3, t: "Antiguo Testamento" },
+      { id: 37, name: "Hageo", chapters: 2, t: "Antiguo Testamento" },
+      { id: 38, name: "Zacarías", chapters: 14, t: "Antiguo Testamento" },
+      { id: 39, name: "Malaquías", chapters: 4, t: "Antiguo Testamento" },
+      { id: 40, name: "Mateo", chapters: 28, t: "Nuevo Testamento" },
+      { id: 41, name: "Marcos", chapters: 16, t: "Nuevo Testamento" },
+      { id: 42, name: "Lucas", chapters: 24, t: "Nuevo Testamento" },
+      { id: 43, name: "Juan", chapters: 21, t: "Nuevo Testamento" },
+      { id: 44, name: "Hechos", chapters: 28, t: "Nuevo Testamento" },
+      { id: 45, name: "Romanos", chapters: 16, t: "Nuevo Testamento" },
+      { id: 46, name: "1 Corintios", chapters: 16, t: "Nuevo Testamento" },
+      { id: 47, name: "2 Corintios", chapters: 13, t: "Nuevo Testamento" },
+      { id: 48, name: "Gálatas", chapters: 6, t: "Nuevo Testamento" },
+      { id: 49, name: "Efesios", chapters: 6, t: "Nuevo Testamento" },
+      { id: 50, name: "Filipenses", chapters: 4, t: "Nuevo Testamento" },
+      { id: 51, name: "Colosenses", chapters: 4, t: "Nuevo Testamento" },
+      { id: 52, name: "1 Tesalonicenses", chapters: 5, t: "Nuevo Testamento" },
+      { id: 53, name: "2 Tesalonicenses", chapters: 3, t: "Nuevo Testamento" },
+      { id: 54, name: "1 Timoteo", chapters: 6, t: "Nuevo Testamento" },
+      { id: 55, name: "2 Timoteo", chapters: 4, t: "Nuevo Testamento" },
+      { id: 56, name: "Tito", chapters: 3, t: "Nuevo Testamento" },
+      { id: 57, name: "Filemón", chapters: 1, t: "Nuevo Testamento" },
+      { id: 58, name: "Hebreos", chapters: 13, t: "Nuevo Testamento" },
+      { id: 59, name: "Santiago", chapters: 5, t: "Nuevo Testamento" },
+      { id: 60, name: "1 Pedro", chapters: 5, t: "Nuevo Testamento" },
+      { id: 61, name: "2 Pedro", chapters: 3, t: "Nuevo Testamento" },
+      { id: 62, name: "1 Juan", chapters: 5, t: "Nuevo Testamento" },
+      { id: 63, name: "2 Juan", chapters: 1, t: "Nuevo Testamento" },
+      { id: 64, name: "3 Juan", chapters: 1, t: "Nuevo Testamento" },
+      { id: 65, name: "Judas", chapters: 1, t: "Nuevo Testamento" },
+      { id: 66, name: "Apocalipsis", chapters: 22, t: "Nuevo Testamento" }
+    ];
+
+    let currentBookId = parseInt(localStorage.getItem('biblia_book')) || 1;
+    let currentChapter = parseInt(localStorage.getItem('biblia_chapter')) || 1;
+    let versesData = [];
+    let currentVerseIndex = 0;
+    let isPlaying = false;
+    let sessionCounter = 0;
+    let fontSizeRem = parseFloat(localStorage.getItem('biblia_font')) || 1.18;
+
+    const audioPlayer = new Audio();
+    const audioCache = new Map();
+
+    const bookSelect = document.getElementById('bookSelect');
+    const chapterSelect = document.getElementById('chapterSelect');
+    const contentArea = document.getElementById('contentArea');
+    const chapterTitle = document.getElementById('chapterTitle');
+    const testamentTag = document.getElementById('testamentTag');
+    const versionBadge = document.getElementById('versionBadge');
+    const npTitle = document.getElementById('npTitle');
+    const npStatus = document.getElementById('npStatus');
+    const playPauseBtn = document.getElementById('playPauseBtn');
+    const playIcon = document.getElementById('playIcon');
+    const stopBtn = document.getElementById('stopBtn');
+    const prevVerseBtn = document.getElementById('prevVerseBtn');
+    const nextVerseBtn = document.getElementById('nextVerseBtn');
+    const prevChapterBtn = document.getElementById('prevChapterBtn');
+    const nextChapterBtn = document.getElementById('nextChapterBtn');
+    const autoNextCheck = document.getElementById('autoNextCheck');
+    const voiceSelect = document.getElementById('voiceSelect');
+    const pitchSelect = document.getElementById('pitchSelect');
+    const speedSelect = document.getElementById('speedSelect');
+    const themeBtn = document.getElementById('themeBtn');
+    const fontIncBtn = document.getElementById('fontIncBtn');
+    const fontDecBtn = document.getElementById('fontDecBtn');
+
+    function init() {
+      document.documentElement.style.setProperty('--verse-size', `${fontSizeRem}rem`);
+      if (localStorage.getItem('biblia_dark') === 'true') document.body.classList.add('dark');
+
+      const otGroup = document.createElement('optgroup');
+      otGroup.label = 'Antiguo Testamento';
+      const ntGroup = document.createElement('optgroup');
+      ntGroup.label = 'Nuevo Testamento';
+
+      BOOKS.forEach(book => {
+        const opt = document.createElement('option');
+        opt.value = book.id;
+        opt.textContent = book.name;
+        if (book.t === 'Antiguo Testamento') otGroup.appendChild(opt);
+        else ntGroup.appendChild(opt);
+      });
+
+      bookSelect.appendChild(otGroup);
+      bookSelect.appendChild(ntGroup);
+      bookSelect.value = currentBookId;
+
+      populateChapters(currentBookId, currentChapter);
+      loadChapter(currentBookId, currentChapter, false);
+    }
+
+    function populateChapters(bookId, selectedChap = 1) {
+      const book = BOOKS.find(b => b.id === bookId) || BOOKS[0];
+      chapterSelect.innerHTML = '';
+      for (let i = 1; i <= book.chapters; i++) {
+        const opt = document.createElement('option');
+        opt.value = i;
+        opt.textContent = `Cap. ${i}`;
+        chapterSelect.appendChild(opt);
+      }
+      chapterSelect.value = selectedChap;
+    }
+
+    function stripHtml(html) {
+      const tmp = document.createElement('div');
+      tmp.innerHTML = html;
+      return (tmp.textContent || tmp.innerText || '').replace(/\s+/g, ' ').trim();
+    }
+
+    function buildAudioUrl(text) {
+      const params = new URLSearchParams({
+        text: text,
+        voice: voiceSelect.value,
+        pitch: pitchSelect.value,
+        rate: speedSelect.value
+      });
+      return `${API_BASE}/api/tts?${params.toString()}`;
+    }
+
+    async function fetchAudioObjectUrl(url) {
+      if (audioCache.has(url)) return audioCache.get(url);
+      const res = await fetch(url);
+      if (!res.ok) {
+        const errText = await res.text().catch(() => '');
+        throw new Error(errText || `HTTP ${res.status}`);
+      }
+      const blob = await res.blob();
+      if (!blob || blob.size < 200) {
+        throw new Error('Audio vacío o inválido');
+      }
+      const objUrl = URL.createObjectURL(blob);
+      audioCache.set(url, objUrl);
+      return objUrl;
+    }
+
+    function preloadVerse(index) {
+      if (index < 0 || index >= versesData.length) return;
+      const url = buildAudioUrl(versesData[index].text);
+      fetchAudioObjectUrl(url).catch(() => {});
+    }
+
+    async function loadChapter(bookId, chapter, autoPlay = false) {
+      stopAudio();
+      currentBookId = bookId;
+      currentChapter = chapter;
+      currentVerseIndex = 0;
+
+      localStorage.setItem('biblia_book', bookId);
+      localStorage.setItem('biblia_chapter', chapter);
+
+      const book = BOOKS.find(b => b.id === bookId);
+      bookSelect.value = bookId;
+      populateChapters(bookId, chapter);
+
+      testamentTag.textContent = book.t;
+      chapterTitle.textContent = `${book.name} ${chapter}`;
+      npTitle.textContent = `${book.name} ${chapter}`;
+      npStatus.textContent = 'Cargando texto...';
+
+      prevChapterBtn.disabled = (bookId === 1 && chapter === 1);
+      nextChapterBtn.disabled = (bookId === 66 && chapter === 22);
+
+      contentArea.innerHTML = `<div class="status-box"><div class="spinner"></div>Cargando ${book.name} ${chapter}...</div>`;
+
+      try {
+        let usedVersion = 'Reina-Valera 1960';
+        let res = await fetch(`https://bolls.life/get-text/RV1960/${bookId}/${chapter}/`);
+        let data = res.ok ? await res.json() : [];
+
+        if (!Array.isArray(data) || data.length === 0) {
+          res = await fetch(`https://bolls.life/get-text/RV2004/${bookId}/${chapter}/`);
+          if (!res.ok) throw new Error('Error de red');
+          data = await res.json();
+          usedVersion = 'Reina-Valera 2004';
+        }
+
+        versionBadge.textContent = usedVersion;
+        versesData = data.map(item => ({
+          verse: item.verse,
+          text: stripHtml(item.text)
+        }));
+
+        renderVerses();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+
+        if (autoPlay) {
+          playVerse(0, true);
+        } else {
+          npStatus.textContent = 'Toca Play o un versículo';
+        }
+      } catch (err) {
+        contentArea.innerHTML = `<div class="status-box"><p>Error al cargar capítulo.</p><button class="nav-btn" onclick="loadChapter(${bookId}, ${chapter}, ${autoPlay})">Reintentar</button></div>`;
+      }
+    }
+
+    function renderVerses() {
+      const container = document.createElement('div');
+      container.className = 'verses-container';
+      versesData.forEach((v, index) => {
+        const p = document.createElement('p');
+        p.className = 'verse';
+        p.id = `verse-${index}`;
+        p.innerHTML = `<span class="verse-num">${v.verse}</span>${v.text}`;
+        p.addEventListener('click', () => playVerse(index, false));
+        container.appendChild(p);
+      });
+      contentArea.innerHTML = '';
+      contentArea.appendChild(container);
+    }
+
+    function highlightVerse(index) {
+      document.querySelectorAll('.verse.active').forEach(el => el.classList.remove('active'));
+      const activeEl = document.getElementById(`verse-${index}`);
+      if (activeEl) {
+        activeEl.classList.add('active');
+        activeEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
+
+    function updatePlayIcon(playing) {
+      playIcon.innerHTML = playing
+        ? `<rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect>`
+        : `<polygon points="6 4 20 12 6 20 6 4"></polygon>`;
+    }
+
+    function stopAudio() {
+      sessionCounter++;
+      audioPlayer.pause();
+      audioPlayer.removeAttribute('src');
+      isPlaying = false;
+      updatePlayIcon(false);
+    }
+
+    function updateMediaSession(bookName, chapter, verseNum) {
+      if ('mediaSession' in navigator) {
+        navigator.mediaSession.metadata = new MediaMetadata({
+          title: `${bookName} ${chapter}:${verseNum}`,
+          artist: 'La Biblia en Audio (RV1960)',
+          album: bookName
+        });
+        navigator.mediaSession.setActionHandler('play', () => playPauseBtn.click());
+        navigator.mediaSession.setActionHandler('pause', () => playPauseBtn.click());
+        navigator.mediaSession.setActionHandler('previoustrack', () => prevVerseBtn.click());
+        navigator.mediaSession.setActionHandler('nexttrack', () => nextVerseBtn.click());
+      }
+    }
+
+    async function playVerse(index, announceChapter = false) {
+      if (!versesData.length) return;
+      const mySession = ++sessionCounter;
+
+      if (index >= versesData.length) {
+        if (autoNextCheck.checked) {
+          goToNextChapter(true);
+        } else {
+          stopAudio();
+          npStatus.textContent = 'Capítulo finalizado';
+        }
+        return;
+      }
+
+      currentVerseIndex = index;
+      isPlaying = true;
+      updatePlayIcon(true);
+      highlightVerse(index);
+
+      const book = BOOKS.find(b => b.id === currentBookId);
+      const v = versesData[index];
+      updateMediaSession(book.name, currentChapter, v.verse);
+
+      const textToSpeak = (announceChapter && index === 0)
+        ? `${book.name}, capítulo ${currentChapter}. ${v.text}`
+        : v.text;
+
+      npStatus.textContent = `Generando voz (versículo ${v.verse})...`;
+
+      try {
+        const url = buildAudioUrl(textToSpeak);
+        const srcUrl = await fetchAudioObjectUrl(url);
+        if (mySession !== sessionCounter) return;
+
+        preloadVerse(index + 1);
+        preloadVerse(index + 2);
+
+        audioPlayer.src = srcUrl;
+        audioPlayer.onplaying = () => {
+          if (mySession === sessionCounter) {
+            npStatus.textContent = `Narrando versículo ${v.verse} de ${versesData.length}`;
+          }
+        };
+
+        audioPlayer.onended = () => {
+          if (mySession === sessionCounter) {
+            setTimeout(() => {
+              if (mySession === sessionCounter) playVerse(index + 1, false);
+            }, 350);
+          }
+        };
+
+        audioPlayer.onerror = () => {
+          if (mySession === sessionCounter) {
+            isPlaying = false;
+            updatePlayIcon(false);
+            npStatus.textContent = 'Error al reproducir audio. Toca Play para reintentar.';
+          }
+        };
+
+        await audioPlayer.play();
+      } catch (err) {
+        if (mySession !== sessionCounter) return;
+        isPlaying = false;
+        updatePlayIcon(false);
+        npStatus.textContent = `Aviso de voz: ${err.message || 'sin respuesta del servidor'}`;
+      }
+    }
+
+    function goToNextChapter(autoPlay = false) {
+      const book = BOOKS.find(b => b.id === currentBookId);
+      if (currentChapter < book.chapters) {
+        loadChapter(currentBookId, currentChapter + 1, autoPlay);
+      } else if (currentBookId < BOOKS.length) {
+        loadChapter(currentBookId + 1, 1, autoPlay);
+      } else {
+        stopAudio();
+        npStatus.textContent = 'Biblia completada';
+      }
+    }
+
+    function goToPrevChapter() {
+      if (currentChapter > 1) {
+        loadChapter(currentBookId, currentChapter - 1, false);
+      } else if (currentBookId > 1) {
+        const prevBook = BOOKS.find(b => b.id === currentBookId - 1);
+        loadChapter(prevBook.id, prevBook.chapters, false);
+      }
+    }
+
+    bookSelect.addEventListener('change', () => loadChapter(parseInt(bookSelect.value), 1, false));
+    chapterSelect.addEventListener('change', () => loadChapter(currentBookId, parseInt(chapterSelect.value), false));
+
+    playPauseBtn.addEventListener('click', () => {
+      if (isPlaying && !audioPlayer.paused) {
+        audioPlayer.pause();
+        isPlaying = false;
+        updatePlayIcon(false);
+        npStatus.textContent = `Pausado en versículo ${versesData[currentVerseIndex]?.verse || 1}`;
+      } else if (!isPlaying && audioPlayer.src && audioPlayer.paused && audioPlayer.currentTime > 0) {
+        audioPlayer.play();
+        isPlaying = true;
+        updatePlayIcon(true);
+        npStatus.textContent = `Narrando versículo ${versesData[currentVerseIndex]?.verse || 1}`;
+      } else {
+        playVerse(currentVerseIndex, currentVerseIndex === 0);
+      }
+    });
+
+    stopBtn.addEventListener('click', () => {
+      stopAudio();
+      currentVerseIndex = 0;
+      document.querySelectorAll('.verse.active').forEach(el => el.classList.remove('active'));
+      npStatus.textContent = 'Detenido';
+    });
+
+    prevVerseBtn.addEventListener('click', () => playVerse(Math.max(0, currentVerseIndex - 1), false));
+    nextVerseBtn.addEventListener('click', () => playVerse(currentVerseIndex + 1, false));
+    prevChapterBtn.addEventListener('click', goToPrevChapter);
+    nextChapterBtn.addEventListener('click', () => goToNextChapter(false));
+
+    [voiceSelect, pitchSelect, speedSelect].forEach(el => {
+      el.addEventListener('change', () => {
+        audioCache.clear();
+        if (isPlaying) playVerse(currentVerseIndex, false);
+      });
+    });
+
+    themeBtn.addEventListener('click', () => {
+      document.body.classList.toggle('dark');
+      localStorage.setItem('biblia_dark', document.body.classList.contains('dark'));
+    });
+
+    fontIncBtn.addEventListener('click', () => {
+      fontSizeRem = Math.min(1.8, +(fontSizeRem + 0.1).toFixed(2));
+      document.documentElement.style.setProperty('--verse-size', `${fontSizeRem}rem`);
+      localStorage.setItem('biblia_font', fontSizeRem);
+    });
+
+    fontDecBtn.addEventListener('click', () => {
+      fontSizeRem = Math.max(0.95, +(fontSizeRem - 0.1).toFixed(2));
+      document.documentElement.style.setProperty('--verse-size', `${fontSizeRem}rem`);
+      localStorage.setItem('biblia_font', fontSizeRem);
+    });
+
+    init();
+  </script>
+</body>
+</html>
